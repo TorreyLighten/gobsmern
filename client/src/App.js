@@ -22,7 +22,7 @@ function App() {
       <Router>
         <Home path="/" />
         <WaitingRoom path="/waiting" />
-        <Game path="/Game/:link" />
+        <Game path="/Game/:link/:boss" />
       </Router>
     </div>
   );

@@ -4,7 +4,9 @@ import PlayArea from './PlayArea';
 import You from './You';
 
 const Game = (props) => {
-    const [link] = useState(props)
+    const {link, boss} = props;
+    const [you, setYou] = useState({});
+    const [opponent, setOpponent] = useState({});
     const [spiderPlayer, setSpiderPlayer] = useState({
         name: "Player1",
         health: 10,
@@ -21,15 +23,25 @@ const Game = (props) => {
         bossUsed: false,
         cardPlayed: null
     });
+
+    useEffect(() => {
+        if (boss == "spider") {
+            setOpponent(trollPlayer);
+            setYou(spiderPlayer);
+        } else {
+            setYou(trollPlayer);
+            setOpponent(spiderPlayer);
+        }
+    }, [])
     
     return (
         <div>
-            <Opponent/>
+            <Opponent opponent={ opponent } />
             <hr></hr>
 
-            <PlayArea/>
+            <PlayArea you={ you } opponent={ opponent } />
             <hr></hr>
-            <You/>
+            <You boss={ boss } link={link} you={ you } />
             {/* <p>watch code: {link}</p>
             <div>
                 

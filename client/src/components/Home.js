@@ -25,7 +25,7 @@ const Home = () => {
             //let player1 know to go to /Game
             socket.emit('joined', link);
             console.log('joining?')
-            navigate(`/Game/${link}`)
+            navigate(`/Game/${link}/troll`)
         } else {
             navigate("/watchGame")
         }

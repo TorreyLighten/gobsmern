@@ -23,4 +23,14 @@ io.on("connection", socket => {
     socket.on('joined', data => {
         socket.broadcast.emit('joined', data);
     })
+    socket.on('chat', data => {
+        socket.broadcast.emit('chat', data);
+    })
+    socket.on('trollCP', data => {
+        socket.broadcast.emit('trollCP', data);
+    })
+    socket.on('spiderCP', data => {
+        socket.broadcast.emit('spiderCP', data);
+    })
+    
 })

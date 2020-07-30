@@ -24,12 +24,11 @@ const WaitingRoom = () => {
         let rand = randString()
 
         socket.on('joined', data => {
-            console.log(data)
             if (data === rand) {
-                console.log("navving")
-                navigate(`/Game/${rand}`)
+                navigate(`/Game/${rand}/spider`)
             }
         })
+        return () => socket.disconnect(true);
     }, [])
 
     return (
