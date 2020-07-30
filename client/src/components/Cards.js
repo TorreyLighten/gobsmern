@@ -1,20 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-const Cards = (you, opponent) => {
+const Cards = ({you, setYou, opponent, setOpponent}) => {
     const [socket] = useState(() => io(':8000'))
     const [chat, setChat] = useState(["Welcome to Snakes & Goblins!!"]);
-    const [cardsPlayed, setCardsPlayed] = useState({
-        oneCP:null,
-        twoCP:null
-    })
     
-    // useEffect(() => {
-    //     let [...curChat] = chat;
-    //     console.log(chat);
-    //     curChat.push("Welcome to Snakes & Goblins!!");
-    //     setChat(curChat);
-    // }, [])
+    console.log("you in Cards.js are",you)
+    console.log("opponent in Cards.js is",opponent)
+
+        socket.on('trollCP', data => {
+            if (you.boss === "Troll") {
+                
+                setYou({...you, cardPlayed: data});
+                
+                if (you.cardPlayed != null && opponent.cardPlayed != null) {
+                    resolveTurn(you, opponent)
+                };
+                // cardClear(setYou,setOpponent)
+            } else {
+                setOpponent({...opponent, cardPlayed: data})
+            }
+            
+        });
+        socket.on('spiderCP', data => {
+            if (you.boss === "Spider") {
+                
+                setYou({...you, cardPlayed: data});
+                
+                if (you.cardPlayed !== null && opponent.cardPlayed !== null) {
+                    resolveTurn(you, opponent)
+                };
+                // cardClear(setYou,setOpponent)
+            } else {
+                setOpponent({...opponent, cardPlayed: data})
+            }
+        });
+        
+    
+    // useEffect(()=>{
+    //     socket.on('spiderCP', data => {
+            
+    //         if (you.boss == "Spider") {
+    //             cardHandler(you, opponent, data);
+                
+
+    //                 resolveTurn({...you, cardPlayed: data}, opponent);
+                
+    //         }
+    //     });
+        
+    // }, [you])
 
     useEffect(()=>{
         socket.on('chat', data => {
@@ -23,60 +58,21 @@ const Cards = (you, opponent) => {
             setChat(curChat);
         });
 
-        socket.on('trollCP', data => {
-            cardHandler2(data)
-        });
+    }, [chat])
 
-        socket.on('spiderCP', data => {
-            cardHandler1(data)
-        });
-
-        return () => socket.disconnect(true);
-    },[])
-
-    const cardHandler2 = (data) => {
-        if (data!=null){
-
-            setCardsPlayed({...cardsPlayed, twoCP: data});
-            console.log(cardsPlayed);
-        }
+    // const cardHandler = (you, data) => {
+    //     let curPlayer = {...you, cardPlayed: data };
+    //     setYou(curPlayer)
+    // }
+    const cardClear=( setYou, setOpponent )=>{
+        let curPlayer={...you,cardPlayed:null};
+        let curOpp={...opponent,cardPlayed:null};
+        setYou(curPlayer)
+        setOpponent(curOpp)
     }
-    const cardHandler1 = (data) => {
-        if (data!=null){
-
-            setCardsPlayed({...cardsPlayed, oneCP: data});
-            console.log(cardsPlayed);
-        }
-    }
-
-    
-    const resolveTurn=(you, opponent)=>{
-        if (you.cardPlayed="Troll"){
-            Troll(you, opponent)
-        }
-        else if(you.cardPlayed="Snake"){
-            Snake(you,opponent)
-        }
-        else if(you.cardPlayed="Shield"){
-            Shield(you,opponent)
-        }
-        else if(you.cardPlayed="Antidote"){
-            Antidote(you,opponent)
-        }
-        else if(you.cardPlayed="Goblin"){
-            Goblin(you,opponent)
-        }
-        else {
-            Spider(you,opponent)
-        }
-        handleWin()
-        handlePoison()
-        handleWin()
-    }
-    
 
     const Goblin = (you, opponent) => {
-        if (opponent.cardPlayed != "Troll" && opponent.cardPlayed != "Shield") {
+        if (opponent.cardPlayed !== "Troll" && opponent.cardPlayed !== "Shield") {
             opponent.health-=3;
             let message = you.name + " played goblin, and did three damage to " + opponent.name + "."
             setChat([
@@ -96,7 +92,7 @@ const Cards = (you, opponent) => {
 
     const Snake = (you, opponent) => {
         if (opponent.cardPlayed != "Spider") {
-            opponent.poison++;
+            opponent.poison+=1;
             let message = you.name + " played snake, it poisoned " + opponent.name + "."
             setChat([
                 ...chat,
@@ -107,7 +103,7 @@ const Cards = (you, opponent) => {
         
     }
 
-    const handlePoison = (you, opponent) => {
+    const handlePoison = (you) => {        
         if (you.poison > 0) {
             you.health-=you.poison
             let message = you.name + " took " + you.poison + " damage from poison.";
@@ -117,18 +113,9 @@ const Cards = (you, opponent) => {
             ])
             socket.emit('chat', chat);
         }
-        if (opponent.poison > 0) {
-            opponent.health-=opponent.poison
-            let message = opponent.name + " took " + opponent.poison + " damage from poison.";
-            setChat([
-                ...chat,
-                message
-            ])
-            socket.emit('chat', chat);
-        }
     }
-
-    const Antidote = (you,opponent) => {
+    
+    const Antidote = (you) => {
         if (you.poison > 0) {
             let message = you.name + " played antidote, and removed " + you.poison + " poison.";
             you.poison = 0;
@@ -146,14 +133,14 @@ const Cards = (you, opponent) => {
             socket.emit('chat', chat);
         }
     }
-
+    
     const Shield = (you,opponent) => {
-        if (opponent.cardPlayed == 'Goblin') {
+        if (opponent.cardPlayed === 'Goblin') {
             let message = you.name + " played shield, blocked " + opponent.name + "'s goblin and found the time to heal";
             if (you.health <= 8) {
                 message += " 2 hp.";
                 you.health += 2;
-            } else if (you.health == 9) {
+            } else if (you.health === 9) {
                 message += " 1 hp.";
                 you.health ++;
             }else {
@@ -175,7 +162,7 @@ const Cards = (you, opponent) => {
     }
 
     const Troll = (you,opponent) => {
-        if (opponent.cardPlayed == 'Goblin') {
+        if (opponent.cardPlayed === 'Goblin') {
             let message = you.name + " played troll, it gobbled up " + opponent.name + "'s goblin and smacked " + opponent.name + " with it's club for 5 damage";
             opponent.health-=5;
             setChat([
@@ -194,7 +181,7 @@ const Cards = (you, opponent) => {
     }
 
     const Spider = (you,opponent) => {
-        if (opponent.cardPlayed == 'Snake') {
+        if (opponent.cardPlayed === 'Snake') {
             let message = you.name + " played giant spider, it gobbled up " + opponent.name + "'s snake and bit " + opponent.name + " for 5 damage";
             opponent.health-=5;
             setChat([
@@ -213,6 +200,7 @@ const Cards = (you, opponent) => {
     }
 
     const handleWin = (you,opponent) => {
+        
         if (opponent.health < 1 && you.health < 1) {
             let message = "The game is a tie!";
             setChat([
@@ -227,7 +215,7 @@ const Cards = (you, opponent) => {
                 message
             ])
             socket.emit('chat', chat);
-        } else {
+        } else if (you.health < 1) {
             let message = opponent.name + "is the winner!";
             setChat([
                 ...chat,
@@ -236,12 +224,42 @@ const Cards = (you, opponent) => {
             socket.emit('chat', chat);
         }
     }
+    
+    const resolveTurn = (you, opponent)=>{
+        if (you.cardPlayed==="Troll"){
+            Troll(you, opponent)
+            
+        }
+        else if(you.cardPlayed==="Snake"){
+            Snake(you,opponent)
+            
+        }
+        else if(you.cardPlayed==="Shield"){
+            Shield(you,opponent)
+            
+        }
+        else if(you.cardPlayed==="Antidote"){
+            Antidote(you,opponent)
+            
+        }
+        else if(you.cardPlayed==="Goblin"){
+            Goblin(you,opponent)
+            
+        }
+        else {
+            Spider(you,opponent)
+            
+        }
+        handleWin(you, opponent)
+        handlePoison(you, opponent)
+        handleWin(you, opponent)
+        
+        
 
-    //handleWin
-    //handlePoison
-    //handleWin
+        socket.emit('resolveTurn', you)
+    }
 
-
+    
     return (
         <div style={{overflow: "scroll"}}>
             <ul>

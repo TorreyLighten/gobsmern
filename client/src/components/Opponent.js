@@ -7,6 +7,8 @@ import logo from '../pictures/card_back_red.png';
 const Opponent = (props) => {
     const {boss, opponent}=props
     const [socket] = useState(() => io(':8000'))
+
+    console.log("Your opponent in Opponent.js is", opponent)
     return (
         <div className="container">
             <div name="opponent" className="row">

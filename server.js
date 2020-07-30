@@ -32,5 +32,8 @@ io.on("connection", socket => {
     socket.on('spiderCP', data => {
         socket.broadcast.emit('spiderCP', data);
     })
+    socket.on('resolveTurn', data => {
+        socket.broadcast.emit('resolveTurn', data);
+    })
     
 })

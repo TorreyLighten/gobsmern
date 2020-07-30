@@ -15,16 +15,13 @@ const Home = () => {
         e.preventDefault();
         const curLink = e.target.value;
         setLink(curLink);
-        console.log(curLink);
     }
 
     const submitHandler = (e, player) => {
         e.preventDefault();
-        console.log(player);
         if (player == "player2") {
             //let player1 know to go to /Game
             socket.emit('joined', link);
-            console.log('joining?')
             navigate(`/Game/${link}/troll`)
         } else {
             navigate("/watchGame")

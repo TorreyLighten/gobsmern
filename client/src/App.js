@@ -8,13 +8,12 @@ import Game from './components/Game';
 function App() {
   const [socket] = useState(() => io(':8000'))
 
-  useEffect(() => {
-    socket.on('message_from_server', data => {
-      console.log(data);
-    });
+  // useEffect(() => {
+  //   socket.on('message_from_server', data => {
+  //   });
 
-    return () => socket.disconnect(true);
-  }, [])
+  //   return () => socket.disconnect(true);
+  // }, [])
 
 
   return (
